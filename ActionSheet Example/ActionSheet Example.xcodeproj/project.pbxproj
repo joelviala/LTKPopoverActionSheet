@@ -22,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6658E91F1618D5C300D21DE8 /* LTKPopoverActionSheetDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTKPopoverActionSheetDelegate.h; sourceTree = "<group>"; };
 		669EF70216186ED800456B55 /* ActionSheet Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ActionSheet Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		669EF70616186ED800456B55 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		669EF70816186ED800456B55 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -116,6 +117,7 @@
 			children = (
 				669EF72E16186FD000456B55 /* LTKPopoverActionSheet.h */,
 				669EF72F16186FD000456B55 /* LTKPopoverActionSheet.m */,
+				6658E91F1618D5C300D21DE8 /* LTKPopoverActionSheetDelegate.h */,
 			);
 			name = LTKPopoverActionSheet;
 			path = ../../LTKPopoverActionSheet;

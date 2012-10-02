@@ -10,4 +10,6 @@
 
 @interface LTKViewController : UIViewController
 
+@property (nonatomic, strong) IBOutlet UINavigationItem *customNavigationItem;
+
 @end
