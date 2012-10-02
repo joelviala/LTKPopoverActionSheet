@@ -10,6 +10,19 @@
 #import <UIKit/UIPopoverBackgroundView.h>
 #import <QuartzCore/QuartzCore.h>
 
+NSInteger const LTKIndexForNoButton          = -1;
+CGFloat   const LTKActionSheetDefaultWidth   = 272.0f;
+CGFloat   const LTKActionSheetDefaultHeight  = 480.0f;
+CGFloat   const LTKDefaultButtonHeight       = 44.0f;
+CGFloat   const LTKDefaultButtonPadding      = 8.0f;
+CGFloat   const LTKTitleLabelTopPadding      = 7.0f;
+CGFloat   const LTKTitleLabelFontSize        = 13.0f;
+CGFloat   const LTKMaxLinesInTitle           = 10.0f;
+CGFloat   const LTKTitleLabelBottomPadding   = 12.0f;
+CGFloat   const LTKDefaultButtonBorderWidth  = 0.5f;
+CGFloat   const LTKDefaultButtonBorderRadius = 6.0f;
+CGFloat   const LTKDefaultButtonFontSize     = 19.0f;
+
 @interface LTKPopoverActionSheetPopoverDelegate : NSObject <UIPopoverControllerDelegate>
 
 @property (nonatomic, weak) LTKPopoverActionSheet *popoverActionSheet;
@@ -25,10 +38,10 @@
 
 @interface LTKPopoverActionSheet ()
 
-@property (nonatomic, strong) NSMutableArray* buttonArray;
-@property (nonatomic, strong) NSMutableArray* blockArray;
-@property (nonatomic, strong) UIPopoverController* popoverController;
-@property (nonatomic, strong) LTKPopoverActionSheetPopoverDelegate* popoverDelegate;
+@property (nonatomic, strong) NSMutableArray *buttonArray;
+@property (nonatomic, strong) NSMutableArray *blockArray;
+@property (nonatomic, strong) UIPopoverController *popoverController;
+@property (nonatomic, strong) LTKPopoverActionSheetPopoverDelegate *popoverDelegate;
 @property (nonatomic, getter = isDismissing) BOOL dismissing;
 
 - (void) buttonPressed:(id)sender;
@@ -47,7 +60,7 @@
     
     if (self)
     {
-        _destructiveButtonIndex = -1;
+        _destructiveButtonIndex = LTKIndexForNoButton;
     }
     
     return self;
@@ -55,13 +68,13 @@
 
 - (id) initWithTitle:(NSString *)title delegate:(id<LTKPopoverActionSheetDelegate>)delegate destructiveButtonTitle:(NSString *)destructiveButtonTitle otherButtonTitles:(NSString *)otherButtonTitles, ...
 {
-    self = [self initWithFrame:CGRectMake(0.0f, 0.0f, 272.0f, 480.0f)];
+    self = [self initWithFrame:CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, LTKActionSheetDefaultHeight)];
     
     if (self)
     {
         self.title = title;
         self.delegate = delegate;
-        _destructiveButtonIndex = -1;
+        _destructiveButtonIndex = LTKIndexForNoButton;
         
         if (nil != destructiveButtonTitle)
         {
@@ -90,35 +103,35 @@
     
     // set up the view
     self.backgroundColor = [UIColor clearColor]; // TODO this should be customizable
-    CGFloat viewHeight   = (44.0f * self.buttonArray.count) + (8.0f * (self.buttonArray.count - 1));
-    self.frame           = CGRectMake(0.0f, 0.0f, 272.0f, viewHeight);
+    CGFloat viewHeight   = (LTKDefaultButtonHeight * self.buttonArray.count) + (LTKDefaultButtonPadding * (self.buttonArray.count - 1));
+    self.frame           = CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, viewHeight);
     
     CGFloat currentY = 0.0f;
     
     // if set, add the title label
     if (nil != self.title)
     {
-        currentY = currentY + 7.0f;
+        currentY = currentY + LTKTitleLabelTopPadding;
         
-        CGSize maximumSize  = CGSizeMake(272.0f, 13.0f * 10.0f);
-        CGSize stringSize   = [self.title sizeWithFont:[UIFont systemFontOfSize:13.0f] constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
+        CGSize maximumSize  = CGSizeMake(LTKActionSheetDefaultWidth, LTKTitleLabelFontSize * LTKMaxLinesInTitle);
+        CGSize stringSize   = [self.title sizeWithFont:[UIFont systemFontOfSize:LTKTitleLabelFontSize] constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
         
         // TODO this should be customizable
-        UILabel *titleLabel        = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, currentY, 272.0f, stringSize.height)];
-        titleLabel.font            = [UIFont systemFontOfSize:13.0f];
-        titleLabel.numberOfLines   = 0;
+        UILabel *titleLabel        = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, currentY, LTKActionSheetDefaultWidth, stringSize.height)];
+        titleLabel.font            = [UIFont systemFontOfSize:LTKTitleLabelFontSize];
+        titleLabel.numberOfLines   = 0; // don't set a max number of lines
         titleLabel.text            = self.title;
         titleLabel.textAlignment   = UITextAlignmentCenter;
-        titleLabel.textColor       = [UIColor whiteColor];
-        titleLabel.backgroundColor = [UIColor clearColor];
+        titleLabel.textColor       = [UIColor whiteColor]; // TODO this should be customizable
+        titleLabel.backgroundColor = [UIColor clearColor]; // TODO this should be customizable
         
         // add in height for the label
         CGRect viewFrame      = self.frame;
-        viewFrame.size.height = 7.0f + titleLabel.frame.size.height + 12.0f + viewFrame.size.height;
+        viewFrame.size.height = LTKTitleLabelTopPadding + titleLabel.frame.size.height + LTKTitleLabelBottomPadding + viewFrame.size.height;
         self.frame            = viewFrame;
         
         [self addSubview:titleLabel];
-        currentY = currentY + titleLabel.frame.size.height + 12.0f;
+        currentY = currentY + titleLabel.frame.size.height + LTKTitleLabelBottomPadding;
     }
     
     NSUInteger buttonIndex = 0;
@@ -132,7 +145,7 @@
         buttonIndex        = buttonIndex + 1;
         
         [self addSubview:button];
-        currentY = currentY + button.frame.size.height + 8.0f;
+        currentY = currentY + button.frame.size.height + LTKDefaultButtonPadding;
     }
 }
 
@@ -141,14 +154,14 @@
 - (NSInteger) addButtonWithTitle:(NSString *)title
 {
     UIButton *newButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    newButton.frame = CGRectMake(0.0f, 0.0f, 272.0f, 44.0f);
-    newButton.layer.borderColor = [[UIColor blackColor] CGColor];
-    newButton.layer.borderWidth = 0.5f;
-    newButton.layer.cornerRadius = 6.0f;
-    newButton.titleLabel.font = [UIFont boldSystemFontOfSize:19.0f];
-    [newButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [newButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-    newButton.backgroundColor = [UIColor whiteColor];
+    newButton.frame = CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, LTKDefaultButtonHeight);  // TODO this should be customizable
+    newButton.layer.borderColor = [[UIColor blackColor] CGColor]; // TODO this should be customizable
+    newButton.layer.borderWidth = LTKDefaultButtonBorderWidth; // TODO this should be customizable
+    newButton.layer.cornerRadius = LTKDefaultButtonBorderRadius; // TODO this should be customizable
+    newButton.backgroundColor = [UIColor whiteColor]; // TODO this should be customizable
+    newButton.titleLabel.font = [UIFont boldSystemFontOfSize:LTKDefaultButtonFontSize]; // TODO this should be customizable
+    [newButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal]; // TODO this should be customizable
+    [newButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted]; // TODO this should be customizable
     [newButton setTitle:title forState:UIControlStateNormal];
     [newButton addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [newButton addTarget:self action:@selector(buttonHighlighted:) forControlEvents:UIControlEventTouchDown];
@@ -250,12 +263,12 @@
 
 - (id) initWithTitle:(NSString *)title
 {
-    self = [self initWithFrame:CGRectMake(0.0f, 0.0f, 272.0f, 480.0f)];
+    self = [self initWithFrame:CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, LTKActionSheetDefaultHeight)];
     
     if (self)
     {
         self.title              = title;
-        _destructiveButtonIndex = -1;
+        _destructiveButtonIndex = LTKIndexForNoButton;
     }
     
     return self;
@@ -300,7 +313,7 @@
 
 - (void) dismissPopoverAnimated:(BOOL)animated
 {
-    return [self dismissWithClickedButtonIndex:-1 animated:animated];
+    return [self dismissWithClickedButtonIndex:LTKIndexForNoButton animated:animated];
 }
 
 #pragma mark - custom getters/setters
@@ -316,7 +329,7 @@
     }
     
     // if there is no destructive button then just return
-    if (-1 == self.destructiveButtonIndex)
+    if (LTKIndexForNoButton == self.destructiveButtonIndex)
     {
         return;
     }
@@ -328,8 +341,9 @@
     else
     {
         UIButton *destructiveButton = [self.buttonArray objectAtIndex:self.destructiveButtonIndex];
-        self.destructiveButtonIndex = destructiveButtonIndex;
+        [self.buttonArray removeObject:destructiveButton];
         [self.buttonArray insertObject:destructiveButton atIndex:destructiveButtonIndex];
+        self.destructiveButtonIndex = destructiveButtonIndex;
         
         // invalidate the popover so it will redraw
         self.popoverController = nil;
@@ -338,11 +352,11 @@
 
 - (NSInteger) firstOtherButtonIndex
 {
-    // The first button index will only ever be -1, 0, or 1:
+    // The first button index will only ever be LTKIndexForNoButton, 0, or 1:
     //  • it will be -1 if there is no regular button
     //  • it will be 0 if there is at least one button and the destructive button index is not 0
     //  • it will be 1 if there is more than one button and the destructive button index is 0
-    NSInteger buttonIndex = -1;
+    NSInteger buttonIndex = LTKIndexForNoButton; // -1
     
     if (0 != self.destructiveButtonIndex && self.buttonArray.count > 0)
     {
@@ -375,7 +389,7 @@
         
         _popoverController = [[UIPopoverController alloc] initWithContentViewController:contentController];
         _popoverController.delegate = self.popoverDelegate;
-        //_popoverController.popoverBackgroundViewClass = [LTKPopoverBackgroundView class];
+        _popoverController.popoverBackgroundViewClass = nil; // TODO this should be customizable
     }
     
     return _popoverController;
@@ -387,7 +401,7 @@
     {
         _popoverDelegate = [[LTKPopoverActionSheetPopoverDelegate alloc] init];
         _popoverDelegate.popoverActionSheet = self;
-        _popoverDelegate.activeButtonIndex  = -1;
+        _popoverDelegate.activeButtonIndex  = LTKIndexForNoButton;
     }
     
     return _popoverDelegate;
@@ -425,13 +439,13 @@
         if (nil == button.currentBackgroundImage)
         {
             // set custom color
-            if ([UIColor blueColor] == button.backgroundColor)
+            if ([UIColor blueColor] == button.backgroundColor) // TODO this should check the custom setting
             {
-                button.backgroundColor = [UIColor whiteColor];
+                button.backgroundColor = [UIColor whiteColor]; // TODO this should be customizable
             }
             else
             {
-                button.backgroundColor = [UIColor redColor];
+                button.backgroundColor = [UIColor redColor]; // TODO this should be customizable
             }
         }
         
@@ -448,13 +462,13 @@
         if (nil == button.currentBackgroundImage)
         {
             // set custom color
-            if ([UIColor whiteColor] == button.backgroundColor)
+            if ([UIColor whiteColor] == button.backgroundColor) // TODO this should check the custom setting
             {
-                button.backgroundColor = [UIColor blueColor];
+                button.backgroundColor = [UIColor blueColor]; // TODO this should be customizable
             }
             else
             {
-                button.backgroundColor = [UIColor colorWithRed:0.61f green:0.0f blue:0.0f alpha:1.0f];
+                button.backgroundColor = [UIColor colorWithRed:0.61f green:0.0f blue:0.0f alpha:1.0f]; // TODO this should be customizable
             }
         }
     }
@@ -469,13 +483,13 @@
         if (nil == button.currentBackgroundImage)
         {
             // set custom color
-            if ([UIColor blueColor] == button.backgroundColor)
+            if ([UIColor blueColor] == button.backgroundColor) // TODO this should check the custom setting
             {
-                button.backgroundColor = [UIColor whiteColor];
+                button.backgroundColor = [UIColor whiteColor]; // TODO this should be customizable
             }
             else
             {
-                button.backgroundColor = [UIColor redColor];
+                button.backgroundColor = [UIColor redColor]; // TODO this should be customizable
             }
         }
     }
@@ -483,31 +497,32 @@
 
 - (CGSize) sizeForContent
 {
-    CGFloat viewHeight = (44.0f * self.buttonArray.count) + (8.0f * (self.buttonArray.count - 1));
+    CGFloat viewHeight = (LTKDefaultButtonHeight * self.buttonArray.count) + (LTKDefaultButtonPadding * (self.buttonArray.count - 1));
     
     if (nil != self.title)
     {
-        CGSize maximumSize  = CGSizeMake(272.0f, 13.0f * 10.0f);
-        CGSize stringSize   = [self.title sizeWithFont:[UIFont systemFontOfSize:13.0f] constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
+        CGSize maximumSize  = CGSizeMake(LTKActionSheetDefaultWidth, LTKTitleLabelFontSize * LTKMaxLinesInTitle);
+        CGSize stringSize   = [self.title sizeWithFont:[UIFont systemFontOfSize:LTKTitleLabelFontSize] constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
         
         // add in height for the label
-        viewHeight = 7.0f + stringSize.height + 12.0f + viewHeight;
+        viewHeight = LTKTitleLabelTopPadding + stringSize.height + LTKTitleLabelBottomPadding + viewHeight;
     }
     
-    return CGSizeMake(272.0f, viewHeight);
+    return CGSizeMake(LTKActionSheetDefaultWidth, viewHeight);
 }
 
 - (NSInteger) addDestructiveButtonWithTitle:(NSString *)title
 {
+    // TODO need to generalize button creation with custom attributes
     UIButton *destructiveButton = [UIButton buttonWithType:UIButtonTypeCustom];
     destructiveButton.layer.borderColor = [[UIColor blackColor] CGColor];
-    destructiveButton.layer.borderWidth = 0.5f;
-    destructiveButton.layer.cornerRadius = 6.0f;
-    destructiveButton.frame = CGRectMake(0.0f, 0.0f, 272.0f, 44.0f);
-    destructiveButton.titleLabel.font = [UIFont boldSystemFontOfSize:19.0f];
+    destructiveButton.layer.borderWidth = LTKDefaultButtonBorderWidth;
+    destructiveButton.layer.cornerRadius = LTKDefaultButtonBorderRadius;
+    destructiveButton.frame = CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, LTKDefaultButtonHeight);
+    destructiveButton.backgroundColor = [UIColor redColor];
+    destructiveButton.titleLabel.font = [UIFont boldSystemFontOfSize:LTKDefaultButtonFontSize];
     [destructiveButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [destructiveButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-    destructiveButton.backgroundColor = [UIColor redColor];
     [destructiveButton setTitle:title forState:UIControlStateNormal];
     [destructiveButton addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [destructiveButton addTarget:self action:@selector(buttonHighlighted:) forControlEvents:UIControlEventTouchDown];
@@ -533,7 +548,7 @@
         [self.popoverActionSheet.delegate actionSheet:self.popoverActionSheet didDismissWithButtonIndex:self.activeButtonIndex];
         
         self.popoverActionSheet = nil;
-        self.activeButtonIndex  = -1;
+        self.activeButtonIndex  = LTKIndexForNoButton;
     }
 }
 
