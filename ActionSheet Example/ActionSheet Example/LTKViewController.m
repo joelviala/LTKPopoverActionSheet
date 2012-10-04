@@ -38,7 +38,7 @@
     self.activePopoverActionSheet = nil;
 }
 
-- (void)didReceiveMemoryWarning
+- (void) didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
 }
@@ -49,7 +49,11 @@
 {
     if (self.activePopoverActionSheet)
     {
-        [self.activePopoverActionSheet dismissPopoverAnimated:YES];
+        if ([self.activePopoverActionSheet isVisible])
+        {
+            [self.activePopoverActionSheet dismissPopoverAnimated:YES];
+        }
+        
         self.activePopoverActionSheet = nil;
     }
     
@@ -82,27 +86,32 @@
 {
     if (self.activePopoverActionSheet)
     {
-        [self.activePopoverActionSheet dismissPopoverAnimated:YES];
+        if ([self.activePopoverActionSheet isVisible])
+        {
+            [self.activePopoverActionSheet dismissPopoverAnimated:YES];
+        }
+        
         self.activePopoverActionSheet = nil;
     }
     
-    LTKPopoverActionSheet *popoverActionSheet = [[LTKPopoverActionSheet alloc] initWithTitle:@"Default action sheet style with title"];
-    
-    [popoverActionSheet addButtonWithTitle:@"Item 1" block:^()
-     {
-         UIAlertView* messageAlert = [[UIAlertView alloc] initWithTitle:nil message:@"Item 1" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-         [messageAlert show];
-     }];
-    
-    [popoverActionSheet addButtonWithTitle:@"Item 2" block:^()
-     {
-         UIAlertView* messageAlert = [[UIAlertView alloc] initWithTitle:nil message:@"Item 2" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-         [messageAlert show];
-     }];
+    LTKPopoverActionSheet *popoverActionSheet = [[LTKPopoverActionSheet alloc] initWithTitle:nil
+                                                                                    delegate:self
+                                                                      destructiveButtonTitle:nil
+                                                                           otherButtonTitles:@"Item 1", @"Item 2", nil];
     
     [popoverActionSheet showFromBarButtonItem:sender animated:YES];
     
     self.activePopoverActionSheet = popoverActionSheet;
+    
+}
+
+#pragma mark - LTKPopoverActionSheetDelegate
+
+- (void) actionSheet:(LTKPopoverActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    NSString *alertText = [NSString stringWithFormat:@"Pressed Button: '%@'", [actionSheet buttonTitleAtIndex:buttonIndex]];
+    UIAlertView* messageAlert = [[UIAlertView alloc] initWithTitle:nil message:alertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    [messageAlert show];
 }
 
 @end

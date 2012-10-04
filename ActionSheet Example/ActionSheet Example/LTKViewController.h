@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "LTKPopoverActionSheetDelegate.h"
 
-@interface LTKViewController : UIViewController
+@interface LTKViewController : UIViewController <LTKPopoverActionSheetDelegate>
 
 @property (nonatomic, strong) IBOutlet UINavigationItem *customNavigationItem;
 
