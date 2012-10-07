@@ -20,19 +20,19 @@ CGFloat   const LTKTitleLabelFontSize        = 13.0f;
 CGFloat   const LTKMaxLinesInTitle           = 10.0f;
 CGFloat   const LTKTitleLabelBottomPadding   = 12.0f;
 CGFloat   const LTKDefaultButtonBorderWidth  = 0.5f;
-CGFloat   const LTKDefaultButtonBorderRadius = 6.0f;
+CGFloat   const LTKDefaultButtonCornerRadius = 6.0f;
 CGFloat   const LTKDefaultButtonFontSize     = 19.0f;
 
 // appearance keys for setting appearance properties
-NSString const *kAppearanceAttributeSize = @"size";
-NSString const *kAppearanceAttributeBorderColor = @"borderColor";
-NSString const *kAppearanceAttributeBorderWidth = @"borderWidth";
-NSString const *kAppearanceAttributeCornerRadius = @"cornerRadius";
-NSString const *kAppearanceAttributeButtonFont = @"buttonFont";
-NSString const *kAppearanceAttributeButtonTitle = @"buttonTitle";
-NSString const *kAppearanceAttributeTitleColors = @"titleColors";
-NSString const *kAppearanceAttributeBackgroundColors = @"backgroundColors";
-NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
+NSString const *kAppearanceAttributeSize                   = @"size";
+NSString const *kAppearanceAttributeBorderColor            = @"borderColor";
+NSString const *kAppearanceAttributeBorderWidth            = @"borderWidth";
+NSString const *kAppearanceAttributeCornerRadius           = @"cornerRadius";
+NSString const *kAppearanceAttributeButtonFont             = @"buttonFont";
+NSString const *kAppearanceAttributeButtonTitle            = @"buttonTitle";
+NSString const *kAppearanceAttributeButtonTitleColors      = @"titleColors";
+NSString const *kAppearanceAttributeButtonBackgroundColors = @"backgroundColors";
+NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages";
 
 @interface LTKPopoverActionSheetPopoverDelegate : NSObject <UIPopoverControllerDelegate>
 
@@ -49,18 +49,39 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
 
 @interface LTKPopoverActionSheet ()
 
+@property (nonatomic, strong) LTKPopoverActionSheetPopoverDelegate *popoverDelegate;
+@property (nonatomic, strong) UIPopoverController *popoverController;
+@property (nonatomic, strong) NSMutableDictionary *buttonTitleColors;
+@property (nonatomic, strong) NSMutableDictionary *buttonBackgroundColors;
+@property (nonatomic, strong) NSMutableDictionary *buttonBackgroundImages;
+@property (nonatomic, strong) NSMutableDictionary *destructiveButtonTitleColors;
+@property (nonatomic, strong) NSMutableDictionary *destructiveButtonBackgroundColors;
+@property (nonatomic, strong) NSMutableDictionary *destructiveButtonBackgroundImages;
 @property (nonatomic, strong) NSMutableArray *buttonTitles;
 @property (nonatomic, strong) NSMutableArray *blockArray;
-@property (nonatomic, strong) UIPopoverController *popoverController;
-@property (nonatomic, strong) LTKPopoverActionSheetPopoverDelegate *popoverDelegate;
 @property (nonatomic, getter = isDismissing) BOOL dismissing;
 @property (nonatomic) BOOL subviewsLaidOut;
 
+// flags for style values that affect the popover style
+// we have to manually pull these out of the appearance proxy since the popover will display
+// before the appearance proxy sets the values in the object
+@property (nonatomic) BOOL didSetSheetWidth;
+@property (nonatomic) BOOL didSetPopoverBackgroundViewClass;
+@property (nonatomic) BOOL didSetTitleTopPadding;
+@property (nonatomic) BOOL didSetTitleBottomPadding;
+@property (nonatomic) BOOL didSetTitleFont;
+@property (nonatomic) BOOL didSetButtonSize;
+@property (nonatomic) BOOL didSetButtonPadding;
+
+- (UIButton *) normalButtonWithTitle:(NSString *)title;
+- (UIButton *) destructiveButtonWithTitle:(NSString *)title;
+- (UIButton *) actionSheetButtonWithAttributes:(NSDictionary *)attributes;
+- (CGSize) sizeForContent;
 - (void) buttonPressed:(id)sender;
 - (void) buttonHighlighted:(id)sender;
 - (void) buttonReleased:(id)sender;
-- (CGSize) sizeForContent;
-- (UIButton *) actionSheetButtonWithAttributes:(NSDictionary *)attributes;
+- (void) reconcilePopoverStyleWithAppearanceProxy;
+- (void) initializeStyle;
 
 @end
 
@@ -73,6 +94,8 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     if (self)
     {
         _destructiveButtonIndex = LTKIndexForNoButton;
+        
+        [self initializeStyle];
     }
     
     return self;
@@ -80,7 +103,7 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
 
 - (id) initWithTitle:(NSString *)title delegate:(id<LTKPopoverActionSheetDelegate>)delegate destructiveButtonTitle:(NSString *)destructiveButtonTitle otherButtonTitles:(NSString *)otherButtonTitles, ...
 {
-    self = [self initWithFrame:CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, LTKActionSheetDefaultHeight)];
+    self = [self initWithFrame:CGRectZero];
     
     if (self)
     {
@@ -120,81 +143,85 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     }
     
     // set up the view
-    self.backgroundColor = [UIColor clearColor]; // TODO this should be customizable
-    CGFloat viewHeight   = (LTKDefaultButtonHeight * self.buttonTitles.count) + (LTKDefaultButtonPadding * (self.buttonTitles.count - 1));
-    self.frame           = CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, viewHeight);
+    super.backgroundColor = self.backgroundColor;
+    CGFloat viewHeight    = (self.buttonSize.height * self.buttonTitles.count) + (self.buttonPadding * (self.buttonTitles.count - 1));
+    self.frame            = CGRectMake(0.0f, 0.0f, self.sheetWidth, viewHeight);
+    
+    // if background image is set then add it
+    if (nil != self.backgroundImage)
+    {
+        super.backgroundColor = [UIColor clearColor];
+        
+        // if caps aren't set the image isn't resizable, so just tile it
+        if (UIEdgeInsetsEqualToEdgeInsets(self.backgroundImage.capInsets, UIEdgeInsetsZero))
+        {
+            UIView *backgroundView = [[UIView alloc] initWithFrame:self.bounds];
+            backgroundView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+            backgroundView.backgroundColor = [UIColor colorWithPatternImage:self.backgroundImage];
+            
+            [self addSubview:backgroundView];
+        }
+        else // add the resizable image
+        {
+            UIImageView *backgroundImageView = [[UIImageView alloc] initWithFrame:self.bounds];
+            backgroundImageView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+            backgroundImageView.image = self.backgroundImage;
+            
+            [self addSubview:backgroundImageView];
+        }
+    }
     
     CGFloat currentY = 0.0f;
     
     // if set, add the title label
     if (nil != self.title)
     {
-        currentY = currentY + LTKTitleLabelTopPadding;
+        currentY = currentY + self.titleTopPadding;
         
-        CGSize maximumSize  = CGSizeMake(LTKActionSheetDefaultWidth, LTKTitleLabelFontSize * LTKMaxLinesInTitle);
-        CGSize stringSize   = [self.title sizeWithFont:[UIFont systemFontOfSize:LTKTitleLabelFontSize] constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
+        CGSize maximumSize  = CGSizeMake(self.sheetWidth, self.titleFont.pointSize * LTKMaxLinesInTitle);
+        CGSize stringSize   = [self.title sizeWithFont:self.titleFont constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
         
-        // TODO this should be customizable
-        UILabel *titleLabel        = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, currentY, LTKActionSheetDefaultWidth, stringSize.height)];
-        titleLabel.font            = [UIFont systemFontOfSize:LTKTitleLabelFontSize];
+        UILabel *titleLabel        = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, currentY, self.sheetWidth, stringSize.height)];
+        titleLabel.font            = self.titleFont;
         titleLabel.numberOfLines   = 0; // don't set a max number of lines
         titleLabel.text            = self.title;
-        titleLabel.textAlignment   = UITextAlignmentCenter;
-        titleLabel.textColor       = [UIColor whiteColor]; // TODO this should be customizable
-        titleLabel.backgroundColor = [UIColor clearColor]; // TODO this should be customizable
+        titleLabel.textAlignment   = self.titleTextAlignment;
+        titleLabel.textColor       = self.titleColor;
+        titleLabel.backgroundColor = self.titleBackgroundColor;
         
         // add in height for the label
         CGRect viewFrame      = self.frame;
-        viewFrame.size.height = LTKTitleLabelTopPadding + titleLabel.frame.size.height + LTKTitleLabelBottomPadding + viewFrame.size.height;
+        viewFrame.size.height = self.titleTopPadding + titleLabel.frame.size.height + self.titleBottomPadding + viewFrame.size.height;
         self.frame            = viewFrame;
         
         [self addSubview:titleLabel];
-        currentY = currentY + titleLabel.frame.size.height + LTKTitleLabelBottomPadding;
+        currentY = currentY + titleLabel.frame.size.height + self.titleBottomPadding;
     }
     
     NSUInteger buttonIndex = 0;
     
     for (NSString *buttonTitle in self.buttonTitles)
     {
-        NSDictionary *buttonAttributes = @{};
+        UIButton *button;
         
         if (buttonIndex == self.destructiveButtonIndex)
         {
-            buttonAttributes = @{
-                kAppearanceAttributeSize: [NSValue valueWithCGSize:CGSizeMake(LTKActionSheetDefaultWidth, LTKDefaultButtonHeight)],
-                kAppearanceAttributeBorderColor: [UIColor blackColor],
-                kAppearanceAttributeBorderWidth: @(LTKDefaultButtonBorderWidth),
-                kAppearanceAttributeCornerRadius: @(LTKDefaultButtonBorderRadius),
-                kAppearanceAttributeButtonFont: [UIFont boldSystemFontOfSize:LTKDefaultButtonFontSize],
-                kAppearanceAttributeButtonTitle: buttonTitle,
-                kAppearanceAttributeTitleColors: @{@(UIControlStateNormal): [UIColor whiteColor], @(UIControlStateHighlighted): [UIColor whiteColor]},
-                kAppearanceAttributeBackgroundColors: @{@(UIControlStateNormal) : [UIColor redColor]}
-            };
+            button = [self destructiveButtonWithTitle:buttonTitle];
         }
         else
         {
-            buttonAttributes = @{
-                kAppearanceAttributeSize: [NSValue valueWithCGSize:CGSizeMake(LTKActionSheetDefaultWidth, LTKDefaultButtonHeight)],
-                kAppearanceAttributeBorderColor: [UIColor blackColor],
-                kAppearanceAttributeBorderWidth: @(LTKDefaultButtonBorderWidth),
-                kAppearanceAttributeCornerRadius: @(LTKDefaultButtonBorderRadius),
-                kAppearanceAttributeButtonFont: [UIFont boldSystemFontOfSize:LTKDefaultButtonFontSize],
-                kAppearanceAttributeButtonTitle: buttonTitle,
-                kAppearanceAttributeTitleColors: @{@(UIControlStateNormal): [UIColor blackColor], @(UIControlStateHighlighted): [UIColor whiteColor]},
-                kAppearanceAttributeBackgroundColors: @{@(UIControlStateNormal) : [UIColor whiteColor]}
-            };
+            button = [self normalButtonWithTitle:buttonTitle];
         }
         
-        UIButton *button = [self actionSheetButtonWithAttributes:buttonAttributes];
-        
         CGRect buttonFrame = button.frame;
-        buttonFrame.origin = CGPointMake(0.0f, currentY);
+        CGFloat xPos       = (self.sheetWidth - self.buttonSize.width) / 2.0f;
+        buttonFrame.origin = CGPointMake(xPos, currentY);
         button.frame       = buttonFrame;
         button.tag         = buttonIndex;
         buttonIndex        = buttonIndex + 1;
         
         [self addSubview:button];
-        currentY = currentY + button.frame.size.height + LTKDefaultButtonPadding;
+        currentY = currentY + button.frame.size.height + self.buttonPadding;
     }
     
     self.subviewsLaidOut = YES;
@@ -207,8 +234,6 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     NSInteger index = self.buttonTitles.count;
     [self.buttonTitles addObject:title];
     
-    // invalidate the popover and view so it will redraw
-    self.popoverController = nil;
     self.subviewsLaidOut = NO;
     
     return index;
@@ -218,7 +243,7 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
 {
     if (self.buttonTitles.count > buttonIndex)
     {
-        return (NSString *)[self.buttonTitles objectAtIndex:buttonIndex];
+        return (NSString *)self.buttonTitles[buttonIndex];
     }
     
     return nil;
@@ -236,11 +261,11 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     
     if (buttonIndex >= 0 && self.blockArray.count > buttonIndex)
     {
-        id block = [self.blockArray objectAtIndex:buttonIndex];
+        LTKPopoverActionSheetBlock block = (LTKPopoverActionSheetBlock)self.blockArray[buttonIndex];
         
         if (![block isEqual:[NSNull null]])
         {
-            ((void (^)())block)();
+            block();
         }
     }
     
@@ -279,8 +304,11 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
         return;
     }
     
+    [self reconcilePopoverStyleWithAppearanceProxy];
     [self setNeedsDisplay];
+    
     [self.popoverController setPopoverContentSize:[self sizeForContent]];
+    [self.popoverController setPopoverBackgroundViewClass:self.popoverBackgroundViewClass];
     
     if (nil != self.delegate && [self.delegate respondsToSelector:@selector(willPresentActionSheet:)])
     {
@@ -297,8 +325,17 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
         return;
     }
     
+    [self reconcilePopoverStyleWithAppearanceProxy];
     [self setNeedsDisplay];
+    
     [self.popoverController setPopoverContentSize:[self sizeForContent]];
+    [self.popoverController setPopoverBackgroundViewClass:self.popoverBackgroundViewClass];
+    
+    if (nil != self.delegate && [self.delegate respondsToSelector:@selector(willPresentActionSheet:)])
+    {
+        [self.delegate willPresentActionSheet:self];
+    }
+    
     [self.popoverController presentPopoverFromRect:rect inView:view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 }
 
@@ -306,7 +343,7 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
 
 - (id) initWithTitle:(NSString *)title
 {
-    self = [self initWithFrame:CGRectMake(0.0f, 0.0f, LTKActionSheetDefaultWidth, LTKActionSheetDefaultHeight)];
+    self = [self initWithFrame:CGRectZero];
     
     if (self)
     {
@@ -362,43 +399,248 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
 
 #pragma mark - appearance API
 
-- (UIColor*) titleColorForState:(UIControlState)state
+- (UIColor*) buttonTitleColorForState:(UIControlState)state
 {
-    NSLog(@"%i", state);
-    
-    return nil;
+    return (UIColor *)self.buttonTitleColors[@(state)];
 }
 
-- (void) setTitleColor:(UIColor *)color forState:(UIControlState)state
+- (void) setButtonTitleColor:(UIColor *)color forState:(UIControlState)state
 {
-    NSLog(@"%@", color);
-    NSLog(@"%i", state);
+    self.buttonTitleColors[@(state)] = color;
+    
+    self.subviewsLaidOut = NO;
 }
 
 - (UIColor*) buttonBackgroundColorForState:(UIControlState)state
 {
-    NSLog(@"%i", state);
-    
-    return nil;
+    return (UIColor *)self.buttonBackgroundColors[@(state)];
 }
 
 - (void) setButtonBackgroundColor:(UIColor *)color forState:(UIControlState)state
 {
-    NSLog(@"%@", color);
-    NSLog(@"%i", state);
+    self.buttonBackgroundColors[@(state)] = color;
+    
+    self.subviewsLaidOut = NO;
 }
 
 - (UIImage*) buttonBackgroundImageForState:(UIControlState)state
 {
-    NSLog(@"%i", state);
-    
-    return nil;
+    return (UIImage *)self.buttonBackgroundImages[@(state)];
 }
 
 - (void) setButtonBackgroundImage:(UIImage *)image forState:(UIControlState)state
 {
-    NSLog(@"%@", image);
-    NSLog(@"%i", state);
+    self.buttonBackgroundImages[@(state)] = image;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (UIColor*) destructiveButtonTitleColorForState:(UIControlState)state
+{
+    return (UIColor *)self.destructiveButtonTitleColors[@(state)];
+}
+
+- (void) setDestructiveButtonTitleColor:(UIColor *)color forState:(UIControlState)state
+{
+    self.destructiveButtonTitleColors[@(state)] = color;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (UIColor*) destructiveButtonBackgroundColorForState:(UIControlState)state
+{
+    return (UIColor *)self.destructiveButtonBackgroundColors[@(state)];
+}
+
+- (void) setDestructiveButtonBackgroundColor:(UIColor *)color forState:(UIControlState)state
+{
+    self.destructiveButtonBackgroundColors[@(state)] = color;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (UIImage*) destructiveButtonBackgroundImageForState:(UIControlState)state
+{
+    return (UIImage *)self.buttonBackgroundImages[@(state)];
+}
+
+- (void) setDestructiveButtonBackgroundImage:(UIImage *)image forState:(UIControlState)state
+{
+    self.destructiveButtonBackgroundImages[@(state)] = image;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) useDefaultStyle
+{
+    // reset the internal style to the default style
+    [self initializeStyle];
+    
+    // re-write the defaults using setters so they don't get overwritten by the appearance proxy
+    self.sheetWidth = _sheetWidth;
+    self.backgroundColor = _backgroundColor;
+    self.backgroundImage = _backgroundImage;
+    self.popoverBackgroundViewClass = _popoverBackgroundViewClass;
+    self.titleTopPadding = _titleTopPadding;
+    self.titleBottomPadding = _titleBottomPadding;
+    self.titleFont = _titleFont;
+    self.titleTextAlignment = _titleTextAlignment;
+    self.titleColor = _titleColor;
+    self.titleBackgroundColor = _titleBackgroundColor;
+    self.buttonSize = _buttonSize;
+    self.buttonPadding = _buttonPadding;
+    self.buttonBorderWidth = _buttonBorderWidth;
+    self.buttonCornerRadius = _buttonCornerRadius;
+    self.buttonBorderColor = _buttonBorderColor;
+    self.destructiveButtonBorderColor = _destructiveButtonBorderColor;
+    self.buttonFont = _buttonFont;
+    
+    NSDictionary *buttonTitleColors = [NSDictionary dictionaryWithDictionary:_buttonTitleColors];
+    for (NSNumber *buttonState in buttonTitleColors)
+    {
+        [self setButtonTitleColor:buttonTitleColors[buttonState] forState:[buttonState intValue]];
+    }
+    
+    NSDictionary *buttonBackgroundColors = [NSDictionary dictionaryWithDictionary:_buttonBackgroundColors];
+    for (NSNumber *buttonState in buttonBackgroundColors)
+    {
+        [self setButtonBackgroundColor:buttonBackgroundColors[buttonState] forState:[buttonState intValue]];
+    }
+    
+    NSDictionary *buttonBackgroundImages = [NSDictionary dictionaryWithDictionary:_buttonBackgroundImages];
+    for (NSNumber *buttonState in buttonBackgroundImages)
+    {
+        [self setButtonBackgroundImage:buttonBackgroundImages[buttonState] forState:[buttonState intValue]];
+    }
+    
+    NSDictionary *destructiveButtonTitleColors = [NSDictionary dictionaryWithDictionary:_destructiveButtonTitleColors];
+    for (NSNumber *buttonState in destructiveButtonTitleColors)
+    {
+        [self setDestructiveButtonTitleColor:destructiveButtonTitleColors[buttonState] forState:[buttonState intValue]];
+    }
+    
+    NSDictionary *destructiveButtonBackgroundColors = [NSDictionary dictionaryWithDictionary:_buttonBackgroundColors];
+    for (NSNumber *buttonState in destructiveButtonBackgroundColors)
+    {
+        [self setDestructiveButtonBackgroundColor:destructiveButtonBackgroundColors[buttonState] forState:[buttonState intValue]];
+    }
+    
+    NSDictionary *destructiveButtonBackgroundImages = [NSDictionary dictionaryWithDictionary:_buttonBackgroundImages];
+    for (NSNumber *buttonState in destructiveButtonBackgroundImages)
+    {
+        [self setDestructiveButtonBackgroundImage:destructiveButtonBackgroundImages[buttonState] forState:[buttonState intValue]];
+    }
+}
+
+- (void) setSheetWidth:(CGFloat)sheetWidth
+{
+    _sheetWidth = sheetWidth;
+    
+    self.didSetSheetWidth = YES;
+    self.subviewsLaidOut  = NO;
+}
+
+- (void) setBackgroundColor:(UIColor *)backgroundColor
+{
+    _backgroundColor = backgroundColor;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setBackgroundImage:(UIImage *)backgroundImage
+{
+    _backgroundImage = backgroundImage;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setPopoverBackgroundViewClass:(Class)popoverBackgroundViewClass
+{
+    _popoverBackgroundViewClass = popoverBackgroundViewClass;
+    
+    self.didSetPopoverBackgroundViewClass = YES;
+}
+
+- (void) setTitleTopPadding:(CGFloat)titleTopPadding
+{
+    _titleTopPadding = titleTopPadding;
+    
+    self.didSetTitleTopPadding = YES;
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setTitleBottomPadding:(CGFloat)titleBottomPadding
+{
+    _titleBottomPadding = titleBottomPadding;
+    
+    self.didSetTitleBottomPadding = YES;
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setTitleFont:(UIFont *)titleFont
+{
+    _titleFont = titleFont;
+    
+    self.didSetTitleFont = YES;
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setTitleTextAlignment:(UITextAlignment)titleTextAlignment
+{
+    _titleTextAlignment = titleTextAlignment;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setButtonSize:(CGSize)buttonSize
+{
+    _buttonSize = buttonSize;
+    
+    self.didSetButtonSize = YES;
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setButtonPadding:(CGFloat)buttonPadding
+{
+    _buttonPadding = buttonPadding;
+    
+    self.didSetButtonPadding = YES;
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setButtonBorderWidth:(CGFloat)buttonBorderWidth
+{
+    _buttonBorderWidth = buttonBorderWidth;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setButtonCornerRadius:(CGFloat)buttonCornerRadius
+{
+    _buttonCornerRadius = buttonCornerRadius;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setButtonFont:(UIFont *)buttonFont
+{
+    _buttonFont = buttonFont;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setButtonBorderColor:(UIColor *)buttonBorderColor
+{
+    _buttonBorderColor = buttonBorderColor;
+    
+    self.subviewsLaidOut = NO;
+}
+
+- (void) setDestructiveButtonBorderColor:(UIColor *)destructiveButtonBorderColor
+{
+    _destructiveButtonBorderColor = destructiveButtonBorderColor;
+    
+    self.subviewsLaidOut = NO;
 }
 
 #pragma mark - custom getters/setters
@@ -409,8 +651,6 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     {
         _title = [title copy];
         
-        // invalidate the popover and view so it will redraw
-        self.popoverController = nil;
         self.subviewsLaidOut = NO;
     }
 }
@@ -424,9 +664,8 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     {
         return;
     }
-    
     // if there is no destructive button then just return
-    if (LTKIndexForNoButton == _destructiveButtonIndex)
+    else if (LTKIndexForNoButton == _destructiveButtonIndex)
     {
         return;
     }
@@ -435,17 +674,13 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     {
         return;
     }
-    else
-    {
-        NSString *destructiveButtonTitle = (NSString *)[self.buttonTitles objectAtIndex:self.destructiveButtonIndex];
-        [self.buttonTitles removeObject:destructiveButtonTitle];
-        [self.buttonTitles insertObject:destructiveButtonTitle atIndex:destructiveButtonIndex];
-        _destructiveButtonIndex = destructiveButtonIndex;
-        
-        // invalidate the popover and view so it will redraw
-        self.popoverController = nil;
-        self.subviewsLaidOut = NO;
-    }
+    
+    NSString *destructiveButtonTitle = (NSString *)self.buttonTitles[self.destructiveButtonIndex];
+    [self.buttonTitles removeObject:destructiveButtonTitle];
+    [self.buttonTitles insertObject:destructiveButtonTitle atIndex:destructiveButtonIndex];
+    _destructiveButtonIndex = destructiveButtonIndex;
+    
+    self.subviewsLaidOut = NO;
 }
 
 - (NSInteger) firstOtherButtonIndex
@@ -487,7 +722,7 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
         
         _popoverController = [[UIPopoverController alloc] initWithContentViewController:contentController];
         _popoverController.delegate = self.popoverDelegate;
-        _popoverController.popoverBackgroundViewClass = nil; // TODO this should be customizable
+        _popoverController.popoverBackgroundViewClass = self.popoverBackgroundViewClass;
     }
     
     return _popoverController;
@@ -525,26 +760,59 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     return _blockArray;
 }
 
+- (NSMutableDictionary *) buttonTitleColors
+{
+    if (nil == _buttonTitleColors)
+    {
+        _buttonTitleColors = [@{} mutableCopy];
+    }
+    
+    return _buttonTitleColors;
+}
+
+- (NSMutableDictionary *) buttonBackgroundColors
+{
+    if (nil == _buttonBackgroundColors)
+    {
+        _buttonBackgroundColors = [@{} mutableCopy];
+    }
+    
+    return _buttonBackgroundColors;
+}
+
+- (NSMutableDictionary *) buttonBackgroundImages
+{
+    if (nil == _buttonBackgroundImages)
+    {
+        _buttonBackgroundImages = [@{} mutableCopy];
+    }
+    
+    return _buttonBackgroundImages;
+}
+
 #pragma mark - private methods
 
 - (void) buttonPressed:(id)sender
 {
     if ([sender isKindOfClass:[UIButton class]])
     {
-        UIButton  *button      = (UIButton *)sender;
-        NSInteger  buttonIndex = button.tag;
+        UIButton *button = (UIButton *)sender;
+        NSInteger buttonIndex = button.tag;
         
         if (nil == button.currentBackgroundImage)
         {
-            // set custom color
-            if ([UIColor blueColor] == button.backgroundColor) // TODO this should check the custom setting
+            UIColor *backgroundColor;
+            
+            if (buttonIndex == self.destructiveButtonIndex)
             {
-                button.backgroundColor = [UIColor whiteColor]; // TODO this should be customizable
+                backgroundColor = self.destructiveButtonBackgroundColors[@(UIControlStateNormal)];
             }
             else
             {
-                button.backgroundColor = [UIColor redColor]; // TODO this should be customizable
+                backgroundColor = self.buttonBackgroundColors[@(UIControlStateNormal)];
             }
+            
+            button.backgroundColor = backgroundColor;
         }
         
         [self dismissWithClickedButtonIndex:buttonIndex animated:YES];
@@ -556,18 +824,22 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
     if ([sender isKindOfClass:[UIButton class]])
     {
         UIButton *button = (UIButton *)sender;
+        NSInteger buttonIndex = button.tag;
         
         if (nil == button.currentBackgroundImage)
         {
-            // set custom color
-            if ([UIColor whiteColor] == button.backgroundColor) // TODO this should check the custom setting
+            UIColor *backgroundColor;
+            
+            if (buttonIndex == self.destructiveButtonIndex)
             {
-                button.backgroundColor = [UIColor blueColor]; // TODO this should be customizable
+                backgroundColor = self.destructiveButtonBackgroundColors[@(UIControlStateHighlighted)];
             }
             else
             {
-                button.backgroundColor = [UIColor colorWithRed:0.61f green:0.0f blue:0.0f alpha:1.0f]; // TODO this should be customizable
+                backgroundColor = self.buttonBackgroundColors[@(UIControlStateHighlighted)];
             }
+            
+            button.backgroundColor = backgroundColor;
         }
     }
 }
@@ -576,75 +848,230 @@ NSString const *kAppearanceAttributeBackgroundImages = @"backgroundImages";
 {
     if ([sender isKindOfClass:[UIButton class]])
     {
-        UIButton  *button      = (UIButton *)sender;
+        UIButton *button = (UIButton *)sender;
+        NSInteger buttonIndex = button.tag;
         
         if (nil == button.currentBackgroundImage)
         {
-            // set custom color
-            if ([UIColor blueColor] == button.backgroundColor) // TODO this should check the custom setting
+            UIColor *backgroundColor;
+            
+            if (buttonIndex == self.destructiveButtonIndex)
             {
-                button.backgroundColor = [UIColor whiteColor]; // TODO this should be customizable
+                backgroundColor = self.destructiveButtonBackgroundColors[@(UIControlStateNormal)];
             }
             else
             {
-                button.backgroundColor = [UIColor redColor]; // TODO this should be customizable
+                backgroundColor = self.buttonBackgroundColors[@(UIControlStateNormal)];
             }
+            
+            button.backgroundColor = backgroundColor;
         }
     }
 }
 
 - (CGSize) sizeForContent
 {
-    CGFloat viewHeight = (LTKDefaultButtonHeight * self.buttonTitles.count) + (LTKDefaultButtonPadding * (self.buttonTitles.count - 1));
+    CGFloat viewHeight = (self.buttonSize.height * self.buttonTitles.count) + (self.buttonPadding * (self.buttonTitles.count - 1));
     
     if (nil != self.title)
     {
-        CGSize maximumSize  = CGSizeMake(LTKActionSheetDefaultWidth, LTKTitleLabelFontSize * LTKMaxLinesInTitle);
-        CGSize stringSize   = [self.title sizeWithFont:[UIFont systemFontOfSize:LTKTitleLabelFontSize] constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
+        CGSize maximumSize = CGSizeMake(self.sheetWidth, self.titleFont.pointSize * LTKMaxLinesInTitle);
+        CGSize stringSize  = [self.title sizeWithFont:self.titleFont constrainedToSize:maximumSize lineBreakMode:UILineBreakModeWordWrap];
         
         // add in height for the label
-        viewHeight = LTKTitleLabelTopPadding + stringSize.height + LTKTitleLabelBottomPadding + viewHeight;
+        viewHeight = self.titleTopPadding + stringSize.height + self.titleBottomPadding + viewHeight;
     }
     
-    return CGSizeMake(LTKActionSheetDefaultWidth, viewHeight);
+    return CGSizeMake(self.sheetWidth, viewHeight);
+}
+
+- (UIButton *) normalButtonWithTitle:(NSString *)title
+{
+    NSDictionary *buttonAttributes = @{
+        kAppearanceAttributeSize: [NSValue valueWithCGSize:self.buttonSize],
+        kAppearanceAttributeBorderColor: self.buttonBorderColor,
+        kAppearanceAttributeBorderWidth: @(self.buttonBorderWidth),
+        kAppearanceAttributeCornerRadius: @(self.buttonCornerRadius),
+        kAppearanceAttributeButtonFont: self.buttonFont,
+        kAppearanceAttributeButtonTitle: title,
+        kAppearanceAttributeButtonTitleColors: self.buttonTitleColors,
+        kAppearanceAttributeButtonBackgroundColors: self.buttonBackgroundColors,
+        kAppearanceAttributeButtonBackgroundImages: self.buttonBackgroundImages
+    };
+    
+    return [self actionSheetButtonWithAttributes:buttonAttributes];
+}
+
+- (UIButton *) destructiveButtonWithTitle:(NSString *)title
+{
+    NSDictionary *buttonAttributes = @{
+        kAppearanceAttributeSize: [NSValue valueWithCGSize:self.buttonSize],
+        kAppearanceAttributeBorderColor: self.destructiveButtonBorderColor,
+        kAppearanceAttributeBorderWidth: @(self.buttonBorderWidth),
+        kAppearanceAttributeCornerRadius: @(self.buttonCornerRadius),
+        kAppearanceAttributeButtonFont: self.buttonFont,
+        kAppearanceAttributeButtonTitle: title,
+        kAppearanceAttributeButtonTitleColors: self.destructiveButtonTitleColors,
+        kAppearanceAttributeButtonBackgroundColors: self.destructiveButtonBackgroundColors,
+        kAppearanceAttributeButtonBackgroundImages: self.destructiveButtonBackgroundImages
+    };
+    
+    return [self actionSheetButtonWithAttributes:buttonAttributes];
 }
 
 - (UIButton *) actionSheetButtonWithAttributes:(NSDictionary *)attributes
 {
-    CGSize  buttonSize = [(NSValue *)[attributes objectForKey:kAppearanceAttributeSize] CGSizeValue];
-    UIColor *borderColor = (UIColor *)[attributes objectForKey:kAppearanceAttributeBorderColor];
-    CGFloat borderWidth = [(NSNumber *)[attributes objectForKey:kAppearanceAttributeBorderWidth] floatValue];
-    CGFloat cornerRadius = [(NSNumber *)[attributes objectForKey:kAppearanceAttributeCornerRadius] floatValue];
-    UIFont *buttonFont = (UIFont *)[attributes objectForKey:kAppearanceAttributeButtonFont];
-    NSString *buttonTitle = (NSString *)[attributes objectForKey:kAppearanceAttributeButtonTitle];
-    NSDictionary *titleColors = (NSDictionary *)[attributes objectForKey:kAppearanceAttributeTitleColors];
-    NSDictionary *backgroundColors = (NSDictionary *)[attributes objectForKey:kAppearanceAttributeBackgroundColors];
-    NSDictionary *backgroundImages = (NSDictionary *)[attributes objectForKey:kAppearanceAttributeBackgroundImages];
+    CGSize  buttonSize = [(NSValue *)attributes[kAppearanceAttributeSize] CGSizeValue];
+    UIColor *borderColor = (UIColor *)attributes[kAppearanceAttributeBorderColor];
+    CGFloat borderWidth = [(NSNumber *)attributes[kAppearanceAttributeBorderWidth] floatValue];
+    CGFloat cornerRadius = [(NSNumber *)attributes[kAppearanceAttributeCornerRadius] floatValue];
+    UIFont *buttonFont = (UIFont *)attributes[kAppearanceAttributeButtonFont];
+    NSString *buttonTitle = (NSString *)attributes[kAppearanceAttributeButtonTitle];
+    NSDictionary *titleColors = (NSDictionary *)attributes[kAppearanceAttributeButtonTitleColors];
+    NSDictionary *backgroundColors = (NSDictionary *)attributes[kAppearanceAttributeButtonBackgroundColors];
+    NSDictionary *backgroundImages = (NSDictionary *)attributes[kAppearanceAttributeButtonBackgroundImages];
     
     UIButton *actionSheetButton = [UIButton buttonWithType:UIButtonTypeCustom];
     actionSheetButton.frame = CGRectMake(0.0f, 0.0f, buttonSize.width, buttonSize.height);
-    actionSheetButton.layer.borderColor = [borderColor CGColor];
-    actionSheetButton.layer.borderWidth = borderWidth;
-    actionSheetButton.layer.cornerRadius = cornerRadius;
     actionSheetButton.titleLabel.font = buttonFont;
     [actionSheetButton setTitle:buttonTitle forState:UIControlStateNormal];
-    [actionSheetButton setTitleColor:(UIColor *)[titleColors objectForKey:@(UIControlStateNormal)] forState:UIControlStateNormal];
-    [actionSheetButton setTitleColor:(UIColor *)[titleColors objectForKey:@(UIControlStateHighlighted)] forState:UIControlStateHighlighted];
+    [actionSheetButton setTitleColor:(UIColor *)titleColors[@(UIControlStateNormal)] forState:UIControlStateNormal];
+    [actionSheetButton setTitleColor:(UIColor *)titleColors[@(UIControlStateHighlighted)] forState:UIControlStateHighlighted];
     [actionSheetButton addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [actionSheetButton addTarget:self action:@selector(buttonHighlighted:) forControlEvents:UIControlEventTouchDown];
     [actionSheetButton addTarget:self action:@selector(buttonReleased:) forControlEvents:UIControlEventTouchDragExit];
     
-    if ([backgroundImages objectForKey:@(UIControlStateNormal)] || [backgroundImages objectForKey:@(UIControlStateHighlighted)])
+    id normalBackgroundImage = backgroundImages[@(UIControlStateNormal)];
+    id highlightedBackgroundImage = backgroundImages[@(UIControlStateHighlighted)];
+    
+    if ([normalBackgroundImage isKindOfClass:[UIImage class]] && [highlightedBackgroundImage isKindOfClass:[UIImage class]])
     {
-        [actionSheetButton setBackgroundImage:(UIImage *)[backgroundImages objectForKey:@(UIControlStateNormal)] forState:UIControlStateNormal];
-        [actionSheetButton setBackgroundImage:(UIImage *)[backgroundImages objectForKey:@(UIControlStateHighlighted)] forState:UIControlStateHighlighted];
+        [actionSheetButton setBackgroundImage:(UIImage *)normalBackgroundImage forState:UIControlStateNormal];
+        [actionSheetButton setBackgroundImage:(UIImage *)highlightedBackgroundImage forState:UIControlStateHighlighted];
     }
     else
     {
-        actionSheetButton.backgroundColor = (UIColor *)[backgroundColors objectForKey:@(UIControlStateNormal)];
+        actionSheetButton.backgroundColor = (UIColor *)backgroundColors[@(UIControlStateNormal)];
+        actionSheetButton.layer.borderColor = [borderColor CGColor];
+        actionSheetButton.layer.borderWidth = borderWidth;
+        actionSheetButton.layer.cornerRadius = cornerRadius;
     }
     
     return actionSheetButton;
+}
+
+- (void) reconcilePopoverStyleWithAppearanceProxy
+{
+    id appearanceProxy = [[self class] appearance];
+    
+    if (!self.didSetSheetWidth)
+    {
+        CGFloat sheetWidth = [appearanceProxy sheetWidth];
+        
+        if (0.0f != sheetWidth)
+        {
+            _sheetWidth = sheetWidth;
+        }
+    }
+    
+    if (!self.didSetPopoverBackgroundViewClass)
+    {
+        Class popoverBackgroundClass = [[[self class] appearance] popoverBackgroundViewClass];
+        
+        if (popoverBackgroundClass)
+        {
+            [self.popoverController setPopoverBackgroundViewClass:popoverBackgroundClass];
+        }
+    }
+    
+    if (!self.didSetTitleTopPadding)
+    {
+        CGFloat titleTopPadding = [appearanceProxy titleTopPadding];
+        
+        if (0.0f != titleTopPadding)
+        {
+            _titleTopPadding = titleTopPadding;
+        }
+    }
+    
+    if (!self.didSetTitleBottomPadding)
+    {
+        CGFloat titleBottomPadding = [appearanceProxy titleBottomPadding];
+        
+        if (0.0f != titleBottomPadding)
+        {
+            _titleBottomPadding = titleBottomPadding;
+        }
+    }
+    
+    if (!self.didSetTitleFont)
+    {
+        UIFont *titleFont = [appearanceProxy titleFont];
+        
+        if (nil != titleFont)
+        {
+            _titleFont = titleFont;
+        }
+    }
+    
+    if (!self.didSetButtonSize)
+    {
+        CGSize buttonSize = [appearanceProxy buttonSize];
+        
+        if (!CGSizeEqualToSize(buttonSize, CGSizeZero))
+        {
+            _buttonSize = buttonSize;
+        }
+    }
+    
+    if (!self.didSetButtonPadding)
+    {
+        CGFloat buttonPadding = [appearanceProxy buttonPadding];
+        
+        if (0.0f != buttonPadding)
+        {
+            _buttonPadding = buttonPadding;
+        }
+    }
+}
+
+- (void) initializeStyle
+{
+    _sheetWidth = LTKActionSheetDefaultWidth;
+    _backgroundColor = [UIColor clearColor];
+    _backgroundImage = nil;
+    _popoverBackgroundViewClass = nil;
+    _titleTopPadding = LTKTitleLabelTopPadding;
+    _titleBottomPadding = LTKTitleLabelBottomPadding;
+    _titleFont = [UIFont systemFontOfSize:LTKTitleLabelFontSize];
+    _titleTextAlignment = UITextAlignmentCenter;
+    _titleColor = [UIColor whiteColor];
+    _titleBackgroundColor = [UIColor clearColor];
+    _buttonSize = CGSizeMake(LTKActionSheetDefaultWidth, LTKDefaultButtonHeight);
+    _buttonPadding = LTKDefaultButtonPadding;
+    _buttonBorderWidth = LTKDefaultButtonBorderWidth;
+    _buttonCornerRadius = LTKDefaultButtonCornerRadius;
+    _buttonBorderColor = [UIColor blackColor];
+    _destructiveButtonBorderColor = [UIColor blackColor];
+    _buttonFont = [UIFont boldSystemFontOfSize:LTKDefaultButtonFontSize];
+    _buttonTitleColors = [@{} mutableCopy];
+    _buttonTitleColors[@(UIControlStateNormal)] = [UIColor blackColor];
+    _buttonTitleColors[@(UIControlStateHighlighted)] = [UIColor whiteColor];
+    _buttonBackgroundColors = [@{} mutableCopy];
+    _buttonBackgroundColors[@(UIControlStateNormal)] = [UIColor whiteColor];
+    _buttonBackgroundColors[@(UIControlStateHighlighted)] = [UIColor blueColor];
+    _buttonBackgroundImages = [@{} mutableCopy];
+    _buttonBackgroundImages[@(UIControlStateNormal)] = [NSNull null];
+    _buttonBackgroundImages[@(UIControlStateHighlighted)] = [NSNull null];
+    _destructiveButtonTitleColors = [@{} mutableCopy];
+    _destructiveButtonTitleColors[@(UIControlStateNormal)] = [UIColor whiteColor];
+    _destructiveButtonTitleColors[@(UIControlStateHighlighted)] = [UIColor whiteColor];
+    _destructiveButtonBackgroundColors = [@{} mutableCopy];
+    _destructiveButtonBackgroundColors[@(UIControlStateNormal)] = [UIColor redColor];
+    _destructiveButtonBackgroundColors[@(UIControlStateHighlighted)] = [UIColor colorWithRed:0.6f green:0.0f blue:0.0f alpha:1.0f];
+    _destructiveButtonBackgroundImages = [@{} mutableCopy];
+    _destructiveButtonBackgroundImages[@(UIControlStateNormal)] = [NSNull null];
+    _destructiveButtonBackgroundImages[@(UIControlStateHighlighted)] = [NSNull null];
 }
 
 @end
