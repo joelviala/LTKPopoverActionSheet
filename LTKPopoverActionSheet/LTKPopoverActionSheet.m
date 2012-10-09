@@ -61,12 +61,13 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
 @property (nonatomic, strong) NSMutableArray *blockArray;
 @property (nonatomic, getter = isDismissing) BOOL dismissing;
 @property (nonatomic) BOOL subviewsLaidOut;
+@property (nonatomic, readonly) Class popoverBackgroundClass;
 
 // flags for style values that affect the popover style
 // we have to manually pull these out of the appearance proxy since the popover will display
 // before the appearance proxy sets the values in the object
 @property (nonatomic) BOOL didSetSheetWidth;
-@property (nonatomic) BOOL didSetPopoverBackgroundViewClass;
+@property (nonatomic) BOOL didSetPopoverBackgroundViewClassName;
 @property (nonatomic) BOOL didSetTitleTopPadding;
 @property (nonatomic) BOOL didSetTitleBottomPadding;
 @property (nonatomic) BOOL didSetTitleFont;
@@ -308,7 +309,13 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     [self setNeedsDisplay];
     
     [self.popoverController setPopoverContentSize:[self sizeForContent]];
-    [self.popoverController setPopoverBackgroundViewClass:self.popoverBackgroundViewClass];
+    
+    Class backgroundClass = self.popoverBackgroundClass;
+    
+    if (backgroundClass)
+    {
+        self.popoverController.popoverBackgroundViewClass = backgroundClass;
+    }
     
     if (nil != self.delegate && [self.delegate respondsToSelector:@selector(willPresentActionSheet:)])
     {
@@ -329,7 +336,13 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     [self setNeedsDisplay];
     
     [self.popoverController setPopoverContentSize:[self sizeForContent]];
-    [self.popoverController setPopoverBackgroundViewClass:self.popoverBackgroundViewClass];
+    
+    Class backgroundClass = self.popoverBackgroundClass;
+    
+    if (backgroundClass)
+    {
+        self.popoverController.popoverBackgroundViewClass = backgroundClass;
+    }
     
     if (nil != self.delegate && [self.delegate respondsToSelector:@selector(willPresentActionSheet:)])
     {
@@ -480,7 +493,7 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     self.sheetWidth = _sheetWidth;
     self.backgroundColor = _backgroundColor;
     self.backgroundImage = _backgroundImage;
-    self.popoverBackgroundViewClass = _popoverBackgroundViewClass;
+    self.popoverBackgroundViewClassName = _popoverBackgroundViewClassName;
     self.titleTopPadding = _titleTopPadding;
     self.titleBottomPadding = _titleBottomPadding;
     self.titleFont = _titleFont;
@@ -554,11 +567,11 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     self.subviewsLaidOut = NO;
 }
 
-- (void) setPopoverBackgroundViewClass:(Class)popoverBackgroundViewClass
+- (void) setPopoverBackgroundViewClassName:(NSString *)popoverBackgroundViewClassName
 {
-    _popoverBackgroundViewClass = popoverBackgroundViewClass;
+    _popoverBackgroundViewClassName = popoverBackgroundViewClassName;
     
-    self.didSetPopoverBackgroundViewClass = YES;
+    self.didSetPopoverBackgroundViewClassName = YES;
 }
 
 - (void) setTitleTopPadding:(CGFloat)titleTopPadding
@@ -722,7 +735,13 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
         
         _popoverController = [[UIPopoverController alloc] initWithContentViewController:contentController];
         _popoverController.delegate = self.popoverDelegate;
-        _popoverController.popoverBackgroundViewClass = self.popoverBackgroundViewClass;
+        
+        Class backgroundClass = self.popoverBackgroundClass;
+        
+        if (backgroundClass)
+        {
+            _popoverController.popoverBackgroundViewClass = backgroundClass;
+        }
     }
     
     return _popoverController;
@@ -788,6 +807,18 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     }
     
     return _buttonBackgroundImages;
+}
+
+- (Class) popoverBackgroundClass
+{
+    Class popoverBackgroundClass = nil;
+    
+    if (nil != self.popoverBackgroundViewClassName)
+    {
+        popoverBackgroundClass = NSClassFromString(self.popoverBackgroundViewClassName);
+    }
+    
+    return popoverBackgroundClass;
 }
 
 #pragma mark - private methods
@@ -974,13 +1005,13 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
         }
     }
     
-    if (!self.didSetPopoverBackgroundViewClass)
+    if (!self.didSetPopoverBackgroundViewClassName)
     {
-        Class popoverBackgroundClass = [[[self class] appearance] popoverBackgroundViewClass];
+        NSString *popoverBackgroundClassName = [appearanceProxy popoverBackgroundViewClassName];
         
-        if (popoverBackgroundClass)
+        if (nil != popoverBackgroundClassName)
         {
-            [self.popoverController setPopoverBackgroundViewClass:popoverBackgroundClass];
+            _popoverBackgroundViewClassName = popoverBackgroundClassName;
         }
     }
     
@@ -1040,7 +1071,7 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     _sheetWidth = LTKActionSheetDefaultWidth;
     _backgroundColor = [UIColor clearColor];
     _backgroundImage = nil;
-    _popoverBackgroundViewClass = nil;
+    _popoverBackgroundViewClassName = nil;
     _titleTopPadding = LTKTitleLabelTopPadding;
     _titleBottomPadding = LTKTitleLabelBottomPadding;
     _titleFont = [UIFont systemFontOfSize:LTKTitleLabelFontSize];

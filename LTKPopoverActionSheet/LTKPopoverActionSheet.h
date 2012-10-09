@@ -28,9 +28,10 @@ typedef void (^LTKPopoverActionSheetBlock)(void);
 // Default is nil
 @property (nonatomic, strong) UIImage *backgroundImage UI_APPEARANCE_SELECTOR;
 
-// The class to use for drawing the UIPopoverController background (border and arrow)
+// The class name to use for drawing the UIPopoverController background (border and arrow)
+// The class must be available to create from the name, so make sure you import the header in your code
 // Default is nil (UIKit default)
-@property (nonatomic, strong) Class popoverBackgroundViewClass UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) NSString *popoverBackgroundViewClassName UI_APPEARANCE_SELECTOR;
 
 // Padding from the top of the popover to begin drawing the title label
 // Default is 7 points
