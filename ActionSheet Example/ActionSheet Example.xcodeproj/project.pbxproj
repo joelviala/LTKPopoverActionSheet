@@ -19,6 +19,8 @@
 		66104F051627C82D004FD90C /* destructive-button@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F031627C82D004FD90C /* destructive-button@2x.png */; };
 		66104F081627C83A004FD90C /* destructive-button-pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F061627C83A004FD90C /* destructive-button-pressed.png */; };
 		66104F091627C83A004FD90C /* destructive-button-pressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F071627C83A004FD90C /* destructive-button-pressed@2x.png */; };
+		6613AB44162826E200BF8C3D /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6613AB43162826E200BF8C3D /* Icon.png */; };
+		6613AB46162826F200BF8C3D /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6613AB45162826F200BF8C3D /* Icon@2x.png */; };
 		669EF70716186ED800456B55 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70616186ED800456B55 /* UIKit.framework */; };
 		669EF70916186ED800456B55 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70816186ED800456B55 /* Foundation.framework */; };
 		669EF70B16186ED800456B55 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70A16186ED800456B55 /* CoreGraphics.framework */; };
@@ -47,6 +49,8 @@
 		66104F031627C82D004FD90C /* destructive-button@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "destructive-button@2x.png"; sourceTree = "<group>"; };
 		66104F061627C83A004FD90C /* destructive-button-pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "destructive-button-pressed.png"; sourceTree = "<group>"; };
 		66104F071627C83A004FD90C /* destructive-button-pressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "destructive-button-pressed@2x.png"; sourceTree = "<group>"; };
+		6613AB43162826E200BF8C3D /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Icon.png; sourceTree = "<group>"; };
+		6613AB45162826F200BF8C3D /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "../Icon@2x.png"; sourceTree = "<group>"; };
 		6658E91F1618D5C300D21DE8 /* LTKPopoverActionSheetDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTKPopoverActionSheetDelegate.h; sourceTree = "<group>"; };
 		669EF70216186ED800456B55 /* ActionSheet Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ActionSheet Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		669EF70616186ED800456B55 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -149,6 +153,8 @@
 				669EF71816186ED800456B55 /* Default.png */,
 				669EF71A16186ED800456B55 /* Default@2x.png */,
 				669EF71C16186ED800456B55 /* Default-568h@2x.png */,
+				6613AB45162826F200BF8C3D /* Icon@2x.png */,
+				6613AB43162826E200BF8C3D /* Icon.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -233,6 +239,8 @@
 				66104F051627C82D004FD90C /* destructive-button@2x.png in Resources */,
 				66104F081627C83A004FD90C /* destructive-button-pressed.png in Resources */,
 				66104F091627C83A004FD90C /* destructive-button-pressed@2x.png in Resources */,
+				6613AB44162826E200BF8C3D /* Icon.png in Resources */,
+				6613AB46162826F200BF8C3D /* Icon@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
