@@ -308,7 +308,12 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     [self reconcilePopoverStyleWithAppearanceProxy];
     [self setNeedsDisplay];
     
-    [self.popoverController setPopoverContentSize:[self sizeForContent]];
+    // set the correct size for the view and the popover
+    CGSize sizeForContent = [self sizeForContent];
+    CGRect frame = self.frame;
+    frame.size = sizeForContent;
+    self.frame = frame;
+    [self.popoverController setPopoverContentSize:sizeForContent];
     
     Class backgroundClass = self.popoverBackgroundClass;
     
@@ -335,7 +340,12 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     [self reconcilePopoverStyleWithAppearanceProxy];
     [self setNeedsDisplay];
     
-    [self.popoverController setPopoverContentSize:[self sizeForContent]];
+    // set the correct size for the view and the popover
+    CGSize sizeForContent = [self sizeForContent];
+    CGRect frame = self.frame;
+    frame.size = sizeForContent;
+    self.frame = frame;
+    [self.popoverController setPopoverContentSize:sizeForContent];
     
     Class backgroundClass = self.popoverBackgroundClass;
     
@@ -532,13 +542,13 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
         [self setDestructiveButtonTitleColor:destructiveButtonTitleColors[buttonState] forState:[buttonState intValue]];
     }
     
-    NSDictionary *destructiveButtonBackgroundColors = [NSDictionary dictionaryWithDictionary:_buttonBackgroundColors];
+    NSDictionary *destructiveButtonBackgroundColors = [NSDictionary dictionaryWithDictionary:_destructiveButtonBackgroundColors];
     for (NSNumber *buttonState in destructiveButtonBackgroundColors)
     {
         [self setDestructiveButtonBackgroundColor:destructiveButtonBackgroundColors[buttonState] forState:[buttonState intValue]];
     }
     
-    NSDictionary *destructiveButtonBackgroundImages = [NSDictionary dictionaryWithDictionary:_buttonBackgroundImages];
+    NSDictionary *destructiveButtonBackgroundImages = [NSDictionary dictionaryWithDictionary:_destructiveButtonBackgroundImages];
     for (NSNumber *buttonState in destructiveButtonBackgroundImages)
     {
         [self setDestructiveButtonBackgroundImage:destructiveButtonBackgroundImages[buttonState] forState:[buttonState intValue]];
@@ -1132,6 +1142,8 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
 
 - (void) viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
+    
     // This will remove the inner shadow from the popover
     if ([NSStringFromClass([self.view.superview class]) isEqualToString:@"UILayoutContainerView"])
     {
@@ -1139,7 +1151,7 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
         
         for (UIView *subview in self.view.superview.subviews)
         {
-            if ([NSStringFromClass([subview class]) isEqualToString:@"UIImageView"] )
+            if ([NSStringFromClass([subview class]) isEqualToString:@"UIImageView"])
             {
                 [subview removeFromSuperview];
             }
