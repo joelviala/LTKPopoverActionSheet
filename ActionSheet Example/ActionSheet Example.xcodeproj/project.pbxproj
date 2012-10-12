@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		66104EF61627BAED004FD90C /* popover-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EF21627BAED004FD90C /* popover-arrow.png */; };
+		66104EF71627BAED004FD90C /* popover-arrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EF31627BAED004FD90C /* popover-arrow@2x.png */; };
+		66104EF81627BAED004FD90C /* popover-background.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EF41627BAED004FD90C /* popover-background.png */; };
+		66104EF91627BAED004FD90C /* popover-background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EF51627BAED004FD90C /* popover-background@2x.png */; };
+		66104EFC1627C197004FD90C /* normal-button.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EFA1627C197004FD90C /* normal-button.png */; };
+		66104EFD1627C197004FD90C /* normal-button@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EFB1627C197004FD90C /* normal-button@2x.png */; };
+		66104F001627C271004FD90C /* normal-button-pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EFE1627C271004FD90C /* normal-button-pressed.png */; };
+		66104F011627C271004FD90C /* normal-button-pressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104EFF1627C271004FD90C /* normal-button-pressed@2x.png */; };
+		66104F041627C82D004FD90C /* destructive-button.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F021627C82D004FD90C /* destructive-button.png */; };
+		66104F051627C82D004FD90C /* destructive-button@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F031627C82D004FD90C /* destructive-button@2x.png */; };
+		66104F081627C83A004FD90C /* destructive-button-pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F061627C83A004FD90C /* destructive-button-pressed.png */; };
+		66104F091627C83A004FD90C /* destructive-button-pressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F071627C83A004FD90C /* destructive-button-pressed@2x.png */; };
 		669EF70716186ED800456B55 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70616186ED800456B55 /* UIKit.framework */; };
 		669EF70916186ED800456B55 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70816186ED800456B55 /* Foundation.framework */; };
 		669EF70B16186ED800456B55 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70A16186ED800456B55 /* CoreGraphics.framework */; };
@@ -19,9 +31,22 @@
 		669EF72016186ED800456B55 /* LTKViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 669EF71F16186ED800456B55 /* LTKViewController.m */; };
 		669EF72316186ED800456B55 /* LTKViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 669EF72116186ED800456B55 /* LTKViewController.xib */; };
 		669EF73016186FD000456B55 /* LTKPopoverActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 669EF72F16186FD000456B55 /* LTKPopoverActionSheet.m */; };
+		66FCA80C162258FE00253DF5 /* LTKPopoverBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 66FCA80B162258FE00253DF5 /* LTKPopoverBackgroundView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		66104EF21627BAED004FD90C /* popover-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "popover-arrow.png"; sourceTree = "<group>"; };
+		66104EF31627BAED004FD90C /* popover-arrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "popover-arrow@2x.png"; sourceTree = "<group>"; };
+		66104EF41627BAED004FD90C /* popover-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "popover-background.png"; sourceTree = "<group>"; };
+		66104EF51627BAED004FD90C /* popover-background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "popover-background@2x.png"; sourceTree = "<group>"; };
+		66104EFA1627C197004FD90C /* normal-button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "normal-button.png"; sourceTree = "<group>"; };
+		66104EFB1627C197004FD90C /* normal-button@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "normal-button@2x.png"; sourceTree = "<group>"; };
+		66104EFE1627C271004FD90C /* normal-button-pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "normal-button-pressed.png"; sourceTree = "<group>"; };
+		66104EFF1627C271004FD90C /* normal-button-pressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "normal-button-pressed@2x.png"; sourceTree = "<group>"; };
+		66104F021627C82D004FD90C /* destructive-button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "destructive-button.png"; sourceTree = "<group>"; };
+		66104F031627C82D004FD90C /* destructive-button@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "destructive-button@2x.png"; sourceTree = "<group>"; };
+		66104F061627C83A004FD90C /* destructive-button-pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "destructive-button-pressed.png"; sourceTree = "<group>"; };
+		66104F071627C83A004FD90C /* destructive-button-pressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "destructive-button-pressed@2x.png"; sourceTree = "<group>"; };
 		6658E91F1618D5C300D21DE8 /* LTKPopoverActionSheetDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTKPopoverActionSheetDelegate.h; sourceTree = "<group>"; };
 		669EF70216186ED800456B55 /* ActionSheet Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ActionSheet Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		669EF70616186ED800456B55 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -41,6 +66,8 @@
 		669EF72216186ED800456B55 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/LTKViewController.xib; sourceTree = "<group>"; };
 		669EF72E16186FD000456B55 /* LTKPopoverActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTKPopoverActionSheet.h; sourceTree = "<group>"; };
 		669EF72F16186FD000456B55 /* LTKPopoverActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTKPopoverActionSheet.m; sourceTree = "<group>"; };
+		66FCA80A162258FE00253DF5 /* LTKPopoverBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTKPopoverBackgroundView.h; sourceTree = "<group>"; };
+		66FCA80B162258FE00253DF5 /* LTKPopoverBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTKPopoverBackgroundView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +120,8 @@
 				669EF71E16186ED800456B55 /* LTKViewController.h */,
 				669EF71F16186ED800456B55 /* LTKViewController.m */,
 				669EF72116186ED800456B55 /* LTKViewController.xib */,
+				66FCA80A162258FE00253DF5 /* LTKPopoverBackgroundView.h */,
+				66FCA80B162258FE00253DF5 /* LTKPopoverBackgroundView.m */,
 				669EF70D16186ED800456B55 /* Supporting Files */,
 			);
 			path = "ActionSheet Example";
@@ -101,6 +130,18 @@
 		669EF70D16186ED800456B55 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				66104EF21627BAED004FD90C /* popover-arrow.png */,
+				66104EF31627BAED004FD90C /* popover-arrow@2x.png */,
+				66104EF41627BAED004FD90C /* popover-background.png */,
+				66104EF51627BAED004FD90C /* popover-background@2x.png */,
+				66104EFA1627C197004FD90C /* normal-button.png */,
+				66104EFB1627C197004FD90C /* normal-button@2x.png */,
+				66104EFE1627C271004FD90C /* normal-button-pressed.png */,
+				66104EFF1627C271004FD90C /* normal-button-pressed@2x.png */,
+				66104F021627C82D004FD90C /* destructive-button.png */,
+				66104F031627C82D004FD90C /* destructive-button@2x.png */,
+				66104F061627C83A004FD90C /* destructive-button-pressed.png */,
+				66104F071627C83A004FD90C /* destructive-button-pressed@2x.png */,
 				669EF70E16186ED800456B55 /* ActionSheet Example-Info.plist */,
 				669EF70F16186ED800456B55 /* InfoPlist.strings */,
 				669EF71216186ED800456B55 /* main.m */,
@@ -180,6 +221,18 @@
 				669EF71B16186ED800456B55 /* Default@2x.png in Resources */,
 				669EF71D16186ED800456B55 /* Default-568h@2x.png in Resources */,
 				669EF72316186ED800456B55 /* LTKViewController.xib in Resources */,
+				66104EF61627BAED004FD90C /* popover-arrow.png in Resources */,
+				66104EF71627BAED004FD90C /* popover-arrow@2x.png in Resources */,
+				66104EF81627BAED004FD90C /* popover-background.png in Resources */,
+				66104EF91627BAED004FD90C /* popover-background@2x.png in Resources */,
+				66104EFC1627C197004FD90C /* normal-button.png in Resources */,
+				66104EFD1627C197004FD90C /* normal-button@2x.png in Resources */,
+				66104F001627C271004FD90C /* normal-button-pressed.png in Resources */,
+				66104F011627C271004FD90C /* normal-button-pressed@2x.png in Resources */,
+				66104F041627C82D004FD90C /* destructive-button.png in Resources */,
+				66104F051627C82D004FD90C /* destructive-button@2x.png in Resources */,
+				66104F081627C83A004FD90C /* destructive-button-pressed.png in Resources */,
+				66104F091627C83A004FD90C /* destructive-button-pressed@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,6 +247,7 @@
 				669EF71716186ED800456B55 /* LTKAppDelegate.m in Sources */,
 				669EF72016186ED800456B55 /* LTKViewController.m in Sources */,
 				669EF73016186FD000456B55 /* LTKPopoverActionSheet.m in Sources */,
+				66FCA80C162258FE00253DF5 /* LTKPopoverBackgroundView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,7 +282,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Adam Schlag (3E5KNMTGVU)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -242,6 +296,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "EB4EE8A0-0565-436B-B7A7-91640FFDA5F7";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 			};

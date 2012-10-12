@@ -13,4 +13,6 @@
 
 @property (nonatomic, strong) IBOutlet UINavigationItem *customNavigationItem;
 
+- (IBAction) buttonAction:(id)sender;
+
 @end
