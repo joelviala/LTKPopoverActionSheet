@@ -1086,7 +1086,7 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     _titleBottomPadding = LTKTitleLabelBottomPadding;
     _titleFont = [UIFont systemFontOfSize:LTKTitleLabelFontSize];
     _titleTextAlignment = UITextAlignmentCenter;
-    _titleColor = [UIColor whiteColor];
+    _titleColor = [UIColor lightGrayColor];
     _titleBackgroundColor = [UIColor clearColor];
     _buttonSize = CGSizeMake(LTKActionSheetDefaultWidth, LTKDefaultButtonHeight);
     _buttonPadding = LTKDefaultButtonPadding;
@@ -1098,21 +1098,43 @@ NSString const *kAppearanceAttributeButtonBackgroundImages = @"backgroundImages"
     _buttonTitleColors = [@{} mutableCopy];
     _buttonTitleColors[@(UIControlStateNormal)] = [UIColor blackColor];
     _buttonTitleColors[@(UIControlStateHighlighted)] = [UIColor whiteColor];
-    _buttonBackgroundColors = [@{} mutableCopy];
-    _buttonBackgroundColors[@(UIControlStateNormal)] = [UIColor whiteColor];
-    _buttonBackgroundColors[@(UIControlStateHighlighted)] = [UIColor blueColor];
-    _buttonBackgroundImages = [@{} mutableCopy];
-    _buttonBackgroundImages[@(UIControlStateNormal)] = [NSNull null];
-    _buttonBackgroundImages[@(UIControlStateHighlighted)] = [NSNull null];
     _destructiveButtonTitleColors = [@{} mutableCopy];
     _destructiveButtonTitleColors[@(UIControlStateNormal)] = [UIColor whiteColor];
     _destructiveButtonTitleColors[@(UIControlStateHighlighted)] = [UIColor whiteColor];
+    _buttonBackgroundColors = [@{} mutableCopy];
+    _buttonBackgroundImages = [@{} mutableCopy];
     _destructiveButtonBackgroundColors = [@{} mutableCopy];
-    _destructiveButtonBackgroundColors[@(UIControlStateNormal)] = [UIColor redColor];
-    _destructiveButtonBackgroundColors[@(UIControlStateHighlighted)] = [UIColor colorWithRed:0.6f green:0.0f blue:0.0f alpha:1.0f];
     _destructiveButtonBackgroundImages = [@{} mutableCopy];
-    _destructiveButtonBackgroundImages[@(UIControlStateNormal)] = [NSNull null];
-    _destructiveButtonBackgroundImages[@(UIControlStateHighlighted)] = [NSNull null];
+    
+    // Try to load the default images. If they don't load then use colors to approximate the image appearance
+    UIImage *buttonImage = [UIImage imageNamed:@"PopoverDefaultButton"];
+    UIImage *pressedButtonImage = [UIImage imageNamed:@"PopoverDefaultButtonPressed"];
+    UIImage *destructiveButtonImage = [UIImage imageNamed:@"PopoverDestroyButton"];
+    UIImage *pressedDestructiveButtonImage = [UIImage imageNamed:@"PopoverDestroyButtonPressed"];
+    
+    if (buttonImage && pressedButtonImage && destructiveButtonImage && pressedDestructiveButtonImage)
+    {
+        UIEdgeInsets capInsets = UIEdgeInsetsMake(21.0f, 5.0f, 21.0f, 5.0f);
+        _buttonBackgroundColors[@(UIControlStateNormal)] = [NSNull null];
+        _buttonBackgroundColors[@(UIControlStateHighlighted)] = [NSNull null];
+        _buttonBackgroundImages[@(UIControlStateNormal)] = [buttonImage resizableImageWithCapInsets:capInsets];
+        _buttonBackgroundImages[@(UIControlStateHighlighted)] = [pressedButtonImage resizableImageWithCapInsets:capInsets];
+        _destructiveButtonBackgroundColors[@(UIControlStateNormal)] = [NSNull null];
+        _destructiveButtonBackgroundColors[@(UIControlStateHighlighted)] = [NSNull null];
+        _destructiveButtonBackgroundImages[@(UIControlStateNormal)] = [destructiveButtonImage resizableImageWithCapInsets:capInsets];
+        _destructiveButtonBackgroundImages[@(UIControlStateHighlighted)] = [pressedDestructiveButtonImage resizableImageWithCapInsets:capInsets];
+    }
+    else
+    {
+        _buttonBackgroundColors[@(UIControlStateNormal)] = [UIColor whiteColor];
+        _buttonBackgroundColors[@(UIControlStateHighlighted)] = [UIColor blueColor];
+        _buttonBackgroundImages[@(UIControlStateNormal)] = [NSNull null];
+        _buttonBackgroundImages[@(UIControlStateHighlighted)] = [NSNull null];
+        _destructiveButtonBackgroundColors[@(UIControlStateNormal)] = [UIColor redColor];
+        _destructiveButtonBackgroundColors[@(UIControlStateHighlighted)] = [UIColor colorWithRed:0.6f green:0.0f blue:0.0f alpha:1.0f];
+        _destructiveButtonBackgroundImages[@(UIControlStateNormal)] = [NSNull null];
+        _destructiveButtonBackgroundImages[@(UIControlStateHighlighted)] = [NSNull null];
+    }
 }
 
 @end

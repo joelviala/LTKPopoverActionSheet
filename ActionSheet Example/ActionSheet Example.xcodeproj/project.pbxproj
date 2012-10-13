@@ -21,6 +21,14 @@
 		66104F091627C83A004FD90C /* destructive-button-pressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66104F071627C83A004FD90C /* destructive-button-pressed@2x.png */; };
 		6613AB44162826E200BF8C3D /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6613AB43162826E200BF8C3D /* Icon.png */; };
 		6613AB46162826F200BF8C3D /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6613AB45162826F200BF8C3D /* Icon@2x.png */; };
+		6659AC9216299831001948AC /* PopoverDefaultButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC8A16299831001948AC /* PopoverDefaultButton.png */; };
+		6659AC9316299831001948AC /* PopoverDefaultButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC8B16299831001948AC /* PopoverDefaultButton@2x.png */; };
+		6659AC9416299831001948AC /* PopoverDefaultButtonPressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC8C16299831001948AC /* PopoverDefaultButtonPressed.png */; };
+		6659AC9516299831001948AC /* PopoverDefaultButtonPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC8D16299831001948AC /* PopoverDefaultButtonPressed@2x.png */; };
+		6659AC9616299831001948AC /* PopoverDestroyButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC8E16299831001948AC /* PopoverDestroyButton.png */; };
+		6659AC9716299831001948AC /* PopoverDestroyButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC8F16299831001948AC /* PopoverDestroyButton@2x.png */; };
+		6659AC9816299831001948AC /* PopoverDestroyButtonPressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC9016299831001948AC /* PopoverDestroyButtonPressed.png */; };
+		6659AC9916299831001948AC /* PopoverDestroyButtonPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6659AC9116299831001948AC /* PopoverDestroyButtonPressed@2x.png */; };
 		669EF70716186ED800456B55 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70616186ED800456B55 /* UIKit.framework */; };
 		669EF70916186ED800456B55 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70816186ED800456B55 /* Foundation.framework */; };
 		669EF70B16186ED800456B55 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669EF70A16186ED800456B55 /* CoreGraphics.framework */; };
@@ -52,6 +60,14 @@
 		6613AB43162826E200BF8C3D /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Icon.png; sourceTree = "<group>"; };
 		6613AB45162826F200BF8C3D /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "../Icon@2x.png"; sourceTree = "<group>"; };
 		6658E91F1618D5C300D21DE8 /* LTKPopoverActionSheetDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTKPopoverActionSheetDelegate.h; sourceTree = "<group>"; };
+		6659AC8A16299831001948AC /* PopoverDefaultButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PopoverDefaultButton.png; sourceTree = "<group>"; };
+		6659AC8B16299831001948AC /* PopoverDefaultButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PopoverDefaultButton@2x.png"; sourceTree = "<group>"; };
+		6659AC8C16299831001948AC /* PopoverDefaultButtonPressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PopoverDefaultButtonPressed.png; sourceTree = "<group>"; };
+		6659AC8D16299831001948AC /* PopoverDefaultButtonPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PopoverDefaultButtonPressed@2x.png"; sourceTree = "<group>"; };
+		6659AC8E16299831001948AC /* PopoverDestroyButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PopoverDestroyButton.png; sourceTree = "<group>"; };
+		6659AC8F16299831001948AC /* PopoverDestroyButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PopoverDestroyButton@2x.png"; sourceTree = "<group>"; };
+		6659AC9016299831001948AC /* PopoverDestroyButtonPressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PopoverDestroyButtonPressed.png; sourceTree = "<group>"; };
+		6659AC9116299831001948AC /* PopoverDestroyButtonPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PopoverDestroyButtonPressed@2x.png"; sourceTree = "<group>"; };
 		669EF70216186ED800456B55 /* ActionSheet Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ActionSheet Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		669EF70616186ED800456B55 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		669EF70816186ED800456B55 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -88,6 +104,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6659AC8916299831001948AC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6659AC8A16299831001948AC /* PopoverDefaultButton.png */,
+				6659AC8B16299831001948AC /* PopoverDefaultButton@2x.png */,
+				6659AC8C16299831001948AC /* PopoverDefaultButtonPressed.png */,
+				6659AC8D16299831001948AC /* PopoverDefaultButtonPressed@2x.png */,
+				6659AC8E16299831001948AC /* PopoverDestroyButton.png */,
+				6659AC8F16299831001948AC /* PopoverDestroyButton@2x.png */,
+				6659AC9016299831001948AC /* PopoverDestroyButtonPressed.png */,
+				6659AC9116299831001948AC /* PopoverDestroyButtonPressed@2x.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		669EF6F716186ED800456B55 = {
 			isa = PBXGroup;
 			children = (
@@ -165,6 +196,7 @@
 				669EF72E16186FD000456B55 /* LTKPopoverActionSheet.h */,
 				669EF72F16186FD000456B55 /* LTKPopoverActionSheet.m */,
 				6658E91F1618D5C300D21DE8 /* LTKPopoverActionSheetDelegate.h */,
+				6659AC8916299831001948AC /* Resources */,
 			);
 			name = LTKPopoverActionSheet;
 			path = ../../LTKPopoverActionSheet;
@@ -241,6 +273,14 @@
 				66104F091627C83A004FD90C /* destructive-button-pressed@2x.png in Resources */,
 				6613AB44162826E200BF8C3D /* Icon.png in Resources */,
 				6613AB46162826F200BF8C3D /* Icon@2x.png in Resources */,
+				6659AC9216299831001948AC /* PopoverDefaultButton.png in Resources */,
+				6659AC9316299831001948AC /* PopoverDefaultButton@2x.png in Resources */,
+				6659AC9416299831001948AC /* PopoverDefaultButtonPressed.png in Resources */,
+				6659AC9516299831001948AC /* PopoverDefaultButtonPressed@2x.png in Resources */,
+				6659AC9616299831001948AC /* PopoverDestroyButton.png in Resources */,
+				6659AC9716299831001948AC /* PopoverDestroyButton@2x.png in Resources */,
+				6659AC9816299831001948AC /* PopoverDestroyButtonPressed.png in Resources */,
+				6659AC9916299831001948AC /* PopoverDestroyButtonPressed@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -50,7 +50,7 @@ typedef void (^LTKPopoverActionSheetBlock)(void);
 @property (nonatomic) UITextAlignment titleTextAlignment UI_APPEARANCE_SELECTOR;
 
 // Color of the title label text
-// Default is white
+// Default is light gray
 @property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
 
 // Background color of the title label text
@@ -93,7 +93,7 @@ typedef void (^LTKPopoverActionSheetBlock)(void);
 - (void) setButtonBackgroundColor:(UIColor *)color forState:(UIControlState)state UI_APPEARANCE_SELECTOR;
 
 // The button background images can be set instead of setting a background color for a custom appearance
-// Default is nil for all states
+// Default uses images in the same style as the UIKit default
 - (UIImage*) buttonBackgroundImageForState:(UIControlState)state UI_APPEARANCE_SELECTOR;
 - (void) setButtonBackgroundImage:(UIImage *)image forState:(UIControlState)state UI_APPEARANCE_SELECTOR;
 
@@ -107,7 +107,7 @@ typedef void (^LTKPopoverActionSheetBlock)(void);
 - (UIColor*) destructiveButtonBackgroundColorForState:(UIControlState)state UI_APPEARANCE_SELECTOR;
 - (void) setDestructiveButtonBackgroundColor:(UIColor *)color forState:(UIControlState)state UI_APPEARANCE_SELECTOR;
 
-// Default is nil for all states
+// Default uses images in the same style as the UIKit default
 - (UIImage*) destructiveButtonBackgroundImageForState:(UIControlState)state UI_APPEARANCE_SELECTOR;
 - (void) setDestructiveButtonBackgroundImage:(UIImage *)image forState:(UIControlState)state UI_APPEARANCE_SELECTOR;
 
