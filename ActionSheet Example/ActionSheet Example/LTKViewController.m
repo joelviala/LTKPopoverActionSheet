@@ -181,17 +181,7 @@
         [popoverActionSheet useDefaultStyle];
     }
     
-    [popoverActionSheet addButtonWithTitle:@"No" block:^()
-     {
-         UIAlertView* messageAlert = [[UIAlertView alloc] initWithTitle:nil
-                                                                message:[NSString stringWithFormat:@"Leaving the style as '%@'", styleName]
-                                                               delegate:nil
-                                                      cancelButtonTitle:@"OK"
-                                                      otherButtonTitles:nil];
-         [messageAlert show];
-     }];
-    
-    [popoverActionSheet addDestructiveButtonWithTitle:@"Change" block:^()
+    [popoverActionSheet addDestructiveButtonWithTitle:@"Change Style" block:^()
      {
          NSString *newStyle = @"";
          
@@ -208,6 +198,16 @@
          
          UIAlertView* messageAlert = [[UIAlertView alloc] initWithTitle:nil
                                                                 message:[NSString stringWithFormat:@"Changing style from '%@' to '%@'", styleName, newStyle]
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+         [messageAlert show];
+     }];
+    
+    [popoverActionSheet addButtonWithTitle:@"Don't Change" block:^()
+     {
+         UIAlertView* messageAlert = [[UIAlertView alloc] initWithTitle:nil
+                                                                message:[NSString stringWithFormat:@"Leaving the style as '%@'", styleName]
                                                                delegate:nil
                                                       cancelButtonTitle:@"OK"
                                                       otherButtonTitles:nil];
