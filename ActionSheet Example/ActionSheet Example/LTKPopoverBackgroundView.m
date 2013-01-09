@@ -11,8 +11,8 @@
 
 static CGFloat const kCapInset     = 12.0f;
 static CGFloat const kContentInset = 10.0f;
-static CGFloat const kArrowBase    = 60.0f;
-static CGFloat const kArrowHeight  = 30.0f;
+static CGFloat const kArrowBase    = 25.0f;
+static CGFloat const kArrowHeight  = 15.0f;
 
 @interface LTKPopoverBackgroundView ()
 
